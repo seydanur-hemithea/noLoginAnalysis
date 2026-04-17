@@ -5,6 +5,8 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import StandardScaler
 import requests
 from io import StringIO
+from pyvis.network import Network
+
 
 # Sayfa ayarları
 st.set_page_config(page_title="Hemithea Portfolio Analiz", layout="wide")
