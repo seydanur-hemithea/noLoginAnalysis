@@ -101,9 +101,56 @@ if data is not None and not data.empty:
             components.html(html_str, height=600, scrolling=True)
 
 
+            # HTML dosyası
+            html_str = net.generate_html()
+            st.download_button(
+                label="📥 Ağ Haritasını HTML indir",
+                data=html_str,
+                file_name="network.html",
+                mime="text/html"
+            )
+
+            # PNG dosyası
+            net.show("network.png")  # Pyvis PNG üretmez, ama networkx + matplotlib ile kaydedebilirsin
+            plt.figure(figsize=(8,6))
+            nx.draw(G, with_labels=True, node_color="skyblue", edge_color="gray")
+            plt.savefig("network.png")
+            with open("network.png", "rb") as f:
+                st.download_button(
+                    label="📥 Ağ Haritasını PNG indir",
+                    data=f,
+                    file_name="network.png",
+                    mime="image/png"
+                )
+            
+
+
 
         with tab2:
             st.dataframe(metrics_df)
+            # CSV indir
+            csv_data = metrics_df.to_csv(index=False).encode("utf-8")
+            st.download_button(
+                label="📥 Metrikleri CSV indir",
+                data=csv_data,
+                file_name="metrics.csv",
+                mime="text/csv"
+            )
+            
+            # PNG indir (matplotlib bar chart örneği)
+            plt.figure(figsize=(8,6))
+            plt.bar(metrics_df['node'], metrics_df['degree'], color=metrics_df['color'])
+            plt.xticks(rotation=90)
+            plt.tight_layout()
+            plt.savefig("metrics.png")
+            with open("metrics.png", "rb") as f:
+                st.download_button(
+                    label="📥 Metrikleri PNG indir",
+                    data=f,
+                    file_name="metrics.png",
+                    mime="image/png"
+                )
+
 
         with tab3:
             st.dataframe(data)
