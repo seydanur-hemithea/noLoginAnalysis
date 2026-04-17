@@ -51,7 +51,7 @@ if data is not None and not data.empty:
     st.success("✅ Analiz Hazır!")
 
     tab1, tab2, tab3 = st.tabs(["🕸️ Ağ Haritası", "📈 Metrikler", "📄 Veri"])
-    G = nx.from_pandas_edgelist(data, source=src, target=tgt)
+    G = nx.from_pandas_edgelist(data, source="Source", target="Target", edge_attr="Weight")
 
     with tab1:
         degree_cent = nx.degree_centrality(G)
