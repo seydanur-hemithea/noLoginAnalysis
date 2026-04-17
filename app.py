@@ -66,4 +66,10 @@ if data is not None and not data.empty:
         # KNN ve Renklendirme
         if len(metrics_df) > 3:
             X = metrics_df[['degree', 'betweenness']].values
-            y = (metrics_df['betweenness'] > metrics_df['betweenness'].mean())
+            y = (metrics_df['betweenness'] > metrics_df['betweenness'].mean()).astype(int)
+            X_scaled = StandardScaler().fit_transform(X)
+            n_neighbors = max(1, min(3, len(metrics_df)-1))
+            knn = KNeighborsClassifier(n_neighbors=n_neighbors).fit(X_scaled, y)
+            metrics_df['color'] = pd.Series(knn.predict(X_scaled)).map({1: "#e74c3c", 0: "#3498db"})
+        else:
+            metrics_df['color'] = "#3498db"
