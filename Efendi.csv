@@ -1,0 +1,88 @@
+source,target,relation,weight,location,context
+Evliyazade,Usakligil,Family,3,bilinmiyor,bilinmiyor
+Usakligil,Latife Hanim,Family,3,bilinmiyor,bilinmiyor
+Ismail Cem,Izzet Melih Devrim,Lineage,3,bilinmiyor,bilinmiyor
+Ipekci Family,Abdi Ipekci,Lineage,3,bilinmiyor,bilinmiyor
+Robert College,Bulent Ecevit,Education,2,bilinmiyor,bilinmiyor
+Bezmen,Sabetayist Community,Origin,2,bilinmiyor,bilinmiyor
+Koc Family,Evliyazade,Business,1,bilinmiyor,bilinmiyor
+Evliyazade,Adnan Menderes,Marriage,3,bilinmiyor,bilinmiyor
+Evliyazade,Tevfik Rustu Aras,Family,3,bilinmiyor,bilinmiyor
+Tevfik Rustu Aras,Fatin Rustu Zorlu,Family,3,bilinmiyor,bilinmiyor
+Bezmen,Kasim Gulek,Family,2,bilinmiyor,bilinmiyor
+Ipekci,Ismail Cem,Cousin,3,bilinmiyor,bilinmiyor
+Usakligil,Latife Hanim,Family,3,bilinmiyor,bilinmiyor
+Eczacibasi,Izmir Families,Business,2,bilinmiyor,bilinmiyor
+Koc Family,Sadberk Hanim,Marriage,3,bilinmiyor,bilinmiyor
+Rahsan Ecevit,Namik Zeki Aral,Family,3,bilinmiyor,bilinmiyor
+Bulent Ecevit,M. Emin Yurdakul,Family,2,bilinmiyor,bilinmiyor
+Sertel Family,Media,Business,2,bilinmiyor,bilinmiyor
+Terakki School,Sabetayist Community,Cultural,3,bilinmiyor,bilinmiyor
+Dogan Group,Eczacibasi,Business,2,bilinmiyor,bilinmiyor
+Dinc Bilgin,Ipekci Family,Family,2,bilinmiyor,bilinmiyor
+Haldun Simavi,Sedat Simavi,Lineage,3,bilinmiyor,bilinmiyor
+Selanikliler,Is Bankasi,Finance,2,bilinmiyor,bilinmiyor
+Bezmen,Mensucat Santral,Ownership,3,bilinmiyor,bilinmiyor
+Sabiha Sertel,Tan Newspaper,Ownership,3,bilinmiyor,bilinmiyor
+Cem Boyner,TUSIAD,Institutional,2,bilinmiyor,bilinmiyor
+Robert College,Nejat Eczacibasi,Education,1,bilinmiyor,bilinmiyor
+Osmanli Bankasi,Levantine Capital,Finance,2,bilinmiyor,bilinmiyor
+Bulent Ecevit,Ismail Cem,Political,2,bilinmiyor,bilinmiyor
+Bulbul Deresi,Kapancilar,Ritual,3,bilinmiyor,bilinmiyor
+Bulbul Deresi,Karakaslar,Ritual,3,bilinmiyor,bilinmiyor
+Sili Terakki,Karakas Community,Institutional,2,bilinmiyor,bilinmiyor
+Fevziye Isik,Kapanci Community,Institutional,2,bilinmiyor,bilinmiyor
+Bezmen,Karakas,Lineage,3,bilinmiyor,bilinmiyor
+Dilber Family,Ipekci Family,Marriage,3,bilinmiyor,bilinmiyor
+Mason Lodges,Political Elites,Membership,2,bilinmiyor,bilinmiyor
+Turk Yurdu,Ittihat ve Terakki,Ideological,3,bilinmiyor,bilinmiyor
+M. Kemal Ataturk,Semsi Efendi,Education,3,bilinmiyor,bilinmiyor
+Semsi Efendi,Sabetayist Doctrine,Origin,3,bilinmiyor,bilinmiyor
+Mim Kemal Oke,Ataturk,Doctor-Mason,3,bilinmiyor,bilinmiyor
+Can Arpac,HKM Lodge,Grand Master,3,bilinmiyor,bilinmiyor
+Sahir Talat Akev,Akev Family,Grand Master,3,bilinmiyor,bilinmiyor
+Enver Necdet Egeran,Oil Industry,Grand Master,3,bilinmiyor,bilinmiyor
+Cavit Bey,Karakas Community,Origin-Mason,3,bilinmiyor,bilinmiyor
+Emanuel Karasu,Macedonia Risorta,Founder,3,bilinmiyor,bilinmiyor
+Abdi Ipekci,Milliyet,Editor,3,bilinmiyor,bilinmiyor
+Ismail Cem,TRT,Director,2,bilinmiyor,bilinmiyor
+Dinc Bilgin,Sabah Newspaper,Owner,3,bilinmiyor,bilinmiyor
+Ercan Arikli,Gelisim Yayinlari,Owner,3,bilinmiyor,bilinmiyor
+Sedat Simavi,Hurriyet,Founder,3,bilinmiyor,bilinmiyor
+Nuri Colakoglu,Aydin Dogan,Advisor,2,bilinmiyor,bilinmiyor
+Sabiha Sertel,Tan Newspaper,Writer,3,bilinmiyor,bilinmiyor
+Cetin Altan,Robert College,Alumni,1,bilinmiyor,bilinmiyor
+Sabetay Sevi,Selanik,Origin,3,Selanik,bilinmiyor
+Selanik,Kapanci,Settlement,3,Selanik,bilinmiyor
+Selanik,Karakas,Settlement,3,Selanik,bilinmiyor
+Kapanci,Fevziye Isik,Institutional,2,Istanbul,bilinmiyor
+Karakas,Terakki,Institutional,2,NiÅantaÅÄ±,bilinmiyor
+Nisantasi,Bezmen,Residence,2,NiÅantaÅÄ±,bilinmiyor
+Tesvikiye,Ipekci,Residence,2,ÅiÅli,bilinmiyor
+Bulbul Deresi,Ibrahim Temo,Burial,2,ÃskÃ¼dar,bilinmiyor
+Ibrahim Temo,Ittihat Terakki,Political,3,ManastÄ±r,bilinmiyor
+Talat Pasa,Ittihat Terakki,Leadership,3,Istanbul,bilinmiyor
+Cavit Bey,Sabetayist,Representation,3,Ankara,bilinmiyor
+Koc Family,Vehbi Koc,Lineage,3,Ankara,bilinmiyor
+Eczacibasi,Suleyman Ferit,Lineage,3,Izmir,bilinmiyor
+Izmir,Evliyazade,Settlement,3,Izmir,bilinmiyor
+Halit Ziya,Usakligil,Lineage,3,Izmir,bilinmiyor
+Izzet Melih Devrim,Sakir Pasa Family,Marriage,3,bilinmiyor,Arts
+Fureya Koral,Sakir Pasa Family,Lineage,3,bilinmiyor,Arts
+Nejat Eczacibasi,Izmir Families,Origin,2,bilinmiyor,Industry
+Leyla Gencer,Ibrahim Calli,Social,1,bilinmiyor,Arts
+Aydin Dogan,TUSIAD,Membership,2,bilinmiyor,Economy
+Nuri Colakoglu,Aydin Dogan,Business,2,bilinmiyor,Media
+Sedat Simavi,Hurriyet,Founder,3,bilinmiyor,Media
+Ercan Arikli,Gelisim Yayinlari,Owner,3,bilinmiyor,Publishing
+Coskun Aral,Sertel Family,Mentorship,1,bilinmiyor,Media
+Bulbul Deresi,Sabiha Sertel,Burial,3,bilinmiyor,Religion
+HKM Locasi,Ittihat Terakki,Institutional,3,bilinmiyor,Politics
+Macedonia Risorta,Emanuel Karasu,Membership,3,bilinmiyor,Salonica
+Emanuel Karasu,Talat Pasa,Mentorship,2,bilinmiyor,Revolution
+Cavit Bey,Mason Lodge,Membership,2,bilinmiyor,Economy
+Izzet Melih Devrim,Mason Lodge,Membership,2,bilinmiyor,Culture
+Kasim Gulek,Mason Lodge,High Degree,3,bilinmiyor,Politics
+Suleyman Demirel,Buyuk Kulup,Membership,2,bilinmiyor,Politics
+Buyuk Kulup,Istanbul Capital,Social Club,3,bilinmiyor,Business
+Sisli Terakki,Mason Members,Educational,2,bilinmiyor,Elite
