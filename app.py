@@ -63,27 +63,36 @@ if data is not None and not data.empty:
 
     if G:
         with tab1:
-            degree_cent = nx.degree_centrality(G)
-            betweenness = nx.betweenness_centrality(G)
+    degree_cent = nx.degree_centrality(G)
+    betweenness = nx.betweenness_centrality(G)
 
-            metrics_df = pd.DataFrame({
-                'node': list(degree_cent.keys()),
-                'degree': list(degree_cent.values()),
-                'betweenness': list(betweenness.values())
-            })
+    metrics_df = pd.DataFrame({
+        'node': list(degree_cent.keys()),
+        'degree': list(degree_cent.values()),
+        'betweenness': list(betweenness.values())
+    })
 
-            # KNN ve renklendirme
-            if len(metrics_df) > 3:
-                X = metrics_df[['degree', 'betweenness']].values
-                y = (metrics_df['betweenness'] > metrics_df['betweenness'].mean()).astype(int)
-                X_scaled = StandardScaler().fit_transform(X)
-                n_neighbors = max(1, min(3, len(metrics_df)-1))
-                knn = KNeighborsClassifier(n_neighbors=n_neighbors).fit(X_scaled, y)
-                metrics_df['color'] = pd.Series(knn.predict(X_scaled)).map({1: "#e74c3c", 0: "#3498db"})
-            else:
-                metrics_df['color'] = "#3498db"
+    # KNN ve renklendirme
+    if len(metrics_df) > 3:
+        X = metrics_df[['degree', 'betweenness']].values
+        y = (metrics_df['betweenness'] > metrics_df['betweenness'].mean()).astype(int)
+        X_scaled = StandardScaler().fit_transform(X)
+        n_neighbors = max(1, min(3, len(metrics_df)-1))
+        knn = KNeighborsClassifier(n_neighbors=n_neighbors).fit(X_scaled, y)
+        metrics_df['color'] = pd.Series(knn.predict(X_scaled)).map({1: "#e74c3c", 0: "#3498db"})
+    else:
+        metrics_df['color'] = "#3498db"
 
-            st.write(metrics_df.head())
+    # --- Pyvis ile görsel ağ ---
+    net = Network(height="600px", width="100%", notebook=False)
+    for i, row in metrics_df.iterrows():
+        net.add_node(row['node'], color=row['color'], title=f"Degree: {row['degree']}, Betweenness: {row['betweenness']}")
+    for u, v, d in G.edges(data=True):
+        net.add_edge(u, v, title=str(d))
+
+    html_str = net.generate_html()
+    components.html(html_str, height=600)
+
 
         with tab2:
             st.dataframe(metrics_df)
