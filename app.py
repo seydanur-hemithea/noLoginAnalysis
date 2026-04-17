@@ -7,6 +7,8 @@ import requests
 from io import StringIO
 from pyvis.network import Network
 import streamlit.components.v1 as components
+import matplotlib.pyplot as plt
+
 
 
 # Sayfa ayarları
