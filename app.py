@@ -1,18 +1,15 @@
 import streamlit as st
 import pandas as pd
 import networkx as nx
-from pyvis.network import Network
-import streamlit.components.v1 as components
-import requests
-from io import StringIO, BytesIO
-import matplotlib.pyplot as plt
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import StandardScaler
+import requests
+from io import StringIO
 
-# 1. Sayfa Ayarları
+# Sayfa ayarları
 st.set_page_config(page_title="Hemithea Portfolio Analiz", layout="wide")
 
-# Mobil CSS
+# CSS
 st.markdown("""
     <style>
     .main > div { padding: 0.5rem; }
@@ -36,8 +33,9 @@ def load_github_data(secim):
         raw_url = to_raw(linkler[secim])
         res = requests.get(raw_url)
         return pd.read_csv(StringIO(res.text))
-    except:
-        return pd.DataFrame({'Kaynak': ['Örnek'], 'Hedef': ['Veri']})
+    except Exception as e:
+        st.error(f"Veri yüklenemedi: {e}")
+        return pd.DataFrame()
 
 # --- ANA AKIŞ ---
 st.title("🌐 Hemithea Portfolio Network Analytics")
@@ -46,30 +44,49 @@ secim = st.sidebar.selectbox("Veri Seti Seç", ["Efendi Analizi", "Game of Thron
 data = load_github_data(secim)
 
 if data is not None and not data.empty:
-    cols = data.columns.tolist()
-    src, tgt = cols[0], cols[1]
     st.success("✅ Analiz Hazır!")
+    st.write("Veri boyutu:", data.shape)
+    st.write(data.head())
 
     tab1, tab2, tab3 = st.tabs(["🕸️ Ağ Haritası", "📈 Metrikler", "📄 Veri"])
-    G = nx.from_pandas_edgelist(data, source="Source", target="Target", edge_attr="Weight")
 
-    with tab1:
-        degree_cent = nx.degree_centrality(G)
-        betweenness = nx.betweenness_centrality(G)
+    # Sütunları otomatik seç
+    cols = data.columns.tolist()
+    if "Source" in cols and "Target" in cols:
+        G = nx.from_pandas_edgelist(data, source="Source", target="Target", edge_attr="Weight")
+    elif "source" in cols and "target" in cols:
+        edge_attrs = [c for c in cols if c not in ["source", "target"]]
+        G = nx.from_pandas_edgelist(data, source="source", target="target", edge_attr=edge_attrs)
+    else:
+        st.error("CSV'de source/target sütunları bulunamadı!")
+        G = None
 
-        metrics_df = pd.DataFrame({
-            'node': list(degree_cent.keys()),
-            'degree': list(degree_cent.values()),
-            'betweenness': list(betweenness.values())
-        })
+    if G:
+        with tab1:
+            degree_cent = nx.degree_centrality(G)
+            betweenness = nx.betweenness_centrality(G)
 
-        # KNN ve Renklendirme
-        if len(metrics_df) > 3:
-            X = metrics_df[['degree', 'betweenness']].values
-            y = (metrics_df['betweenness'] > metrics_df['betweenness'].mean()).astype(int)
-            X_scaled = StandardScaler().fit_transform(X)
-            n_neighbors = max(1, min(3, len(metrics_df)-1))
-            knn = KNeighborsClassifier(n_neighbors=n_neighbors).fit(X_scaled, y)
-            metrics_df['color'] = pd.Series(knn.predict(X_scaled)).map({1: "#e74c3c", 0: "#3498db"})
-        else:
-            metrics_df['color'] = "#3498db"
+            metrics_df = pd.DataFrame({
+                'node': list(degree_cent.keys()),
+                'degree': list(degree_cent.values()),
+                'betweenness': list(betweenness.values())
+            })
+
+            # KNN ve renklendirme
+            if len(metrics_df) > 3:
+                X = metrics_df[['degree', 'betweenness']].values
+                y = (metrics_df['betweenness'] > metrics_df['betweenness'].mean()).astype(int)
+                X_scaled = StandardScaler().fit_transform(X)
+                n_neighbors = max(1, min(3, len(metrics_df)-1))
+                knn = KNeighborsClassifier(n_neighbors=n_neighbors).fit(X_scaled, y)
+                metrics_df['color'] = pd.Series(knn.predict(X_scaled)).map({1: "#e74c3c", 0: "#3498db"})
+            else:
+                metrics_df['color'] = "#3498db"
+
+            st.write(metrics_df.head())
+
+        with tab2:
+            st.dataframe(metrics_df)
+
+        with tab3:
+            st.dataframe(data)
