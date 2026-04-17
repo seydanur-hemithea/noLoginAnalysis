@@ -29,8 +29,8 @@ def to_raw(url):
 @st.cache_data(ttl=600)
 def load_github_data(secim):
     linkler = {
-        "Efendi Analizi": "https://github.com/seydanur-hemithea/appHemitheaNetwork2/blob/main/Efendi.csv",
-        "Game of Thrones": "https://github.com/seydanur-hemithea/appHemitheaNetwork2/blob/main/GoT.csv"
+        "Efendi Analizi": "https://raw.githubusercontent.com/seydanur-hemithea/appHemitheaNetwork2/main/Efendi.csv",
+        "Game of Thrones": "https://raw.githubusercontent.com/seydanur-hemithea/appHemitheaNetwork2/main/GoT.csv"
     }
     try:
         raw_url = to_raw(linkler[secim])
