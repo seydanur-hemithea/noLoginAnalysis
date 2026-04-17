@@ -86,14 +86,19 @@ if data is not None and not data.empty:
                 metrics_df['color'] = "#3498db"
         
             # --- Pyvis ile görsel ağ ---
-            net = Network(height="600px", width="100%", notebook=False)
-            for i, row in metrics_df.iterrows():
-                net.add_node(row['node'], color=row['color'], title=f"Degree: {row['degree']}, Betweenness: {row['betweenness']}")
+           net = Network(height="600px", width="100%")
+           for i, row in metrics_df.iterrows():
+                net.add_node(row['node'], color=row['color'],
+                             title=f"Degree: {row['degree']}, Betweenness: {row['betweenness']}")
             for u, v, d in G.edges(data=True):
                 net.add_edge(u, v, title=str(d))
-        
+            
+            # HTML üret
             html_str = net.generate_html()
-            components.html(html_str, height=600)
+            
+            # Streamlit'e göm
+            components.html(html_str, height=600, scrolling=True)
+
 
 
         with tab2:
