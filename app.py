@@ -66,4 +66,4 @@ if data is not None and not data.empty:
         # KNN ve Renklendirme
         if len(metrics_df) > 3:
             X = metrics_df[['degree', 'betweenness']].values
-            y = (metrics_df['betweenness'] > metrics_df['betweenness'].mean()).
+            y = (metrics_df['betweenness'] > metrics_df['betweenness'].mean())
