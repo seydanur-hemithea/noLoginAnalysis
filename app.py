@@ -110,19 +110,12 @@ if data is not None and not data.empty:
                 mime="text/html"
             )
 
-            # PNG dosyası
-            net.show("network.png")  # Pyvis PNG üretmez, ama networkx + matplotlib ile kaydedebilirsin
+            # PNG için NetworkX + Matplotlib
             plt.figure(figsize=(8,6))
             nx.draw(G, with_labels=True, node_color="skyblue", edge_color="gray")
             plt.savefig("network.png")
             with open("network.png", "rb") as f:
-                st.download_button(
-                    label="📥 Ağ Haritasını PNG indir",
-                    data=f,
-                    file_name="network.png",
-                    mime="image/png"
-                )
-            
+                st.download_button("📥 Ağ Haritası (PNG)", f, "network.png", "image/png")
 
 
 
