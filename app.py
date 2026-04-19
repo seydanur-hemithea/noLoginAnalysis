@@ -8,15 +8,23 @@ from io import StringIO
 from pyvis.network import Network
 import streamlit.components.v1 as components
 import matplotlib.pyplot as plt
+
+
+
+
 hide_streamlit_style = """
             <style>
             #MainMenu {visibility: hidden;}
             footer {visibility: hidden;}
             header {visibility: hidden;}
+            
+            /* Modern Streamlit sürümleri için ek önlemler */
+            [data-testid="stDecoration"] {visibility: hidden;}
+            [data-testid="stStatusWidget"] {visibility: hidden;}
+            div.block-container {padding-top: 1rem;}
             </style>
             """
 
-# CSS'i uygulamaya enjekte edin
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 
