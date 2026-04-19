@@ -10,7 +10,8 @@ import streamlit.components.v1 as components
 import matplotlib.pyplot as plt
 
 
-
+# Sayfa ayarları
+st.set_page_config(page_title="Hemithea Portfolio Analiz", layout="wide")
 
 hide_streamlit_style = """
             <style>
@@ -28,8 +29,7 @@ hide_streamlit_style = """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 
-# Sayfa ayarları
-st.set_page_config(page_title="Hemithea Portfolio Analiz", layout="wide")
+
 
 # CSS
 st.markdown("""
