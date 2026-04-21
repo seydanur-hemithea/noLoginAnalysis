@@ -13,20 +13,7 @@ from sklearn.ensemble import RandomForestClassifier
 # Sayfa ayarları
 st.set_page_config(page_title="Hemithea Portfolio Analiz", layout="wide")
 
-hide_streamlit_style = """
-            <style>
-            #MainMenu {visibility: hidden;}
-            footer {visibility: hidden;}
-            header {visibility: hidden;}
-            
-            /* Modern Streamlit sürümleri için ek önlemler */
-            [data-testid="stDecoration"] {visibility: hidden;}
-            [data-testid="stStatusWidget"] {visibility: hidden;}
-            div.block-container {padding-top: 1rem;}
-            </style>
-            """
 
-st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 # CSS
 st.markdown("""
