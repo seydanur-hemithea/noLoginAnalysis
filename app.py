@@ -8,6 +8,7 @@ from io import StringIO
 from pyvis.network import Network
 import streamlit.components.v1 as components
 import matplotlib.pyplot as plt
+from sklearn.ensemble import RandomForestClassifier
 
 
 # Sayfa ayarları
@@ -85,57 +86,73 @@ if data is not None and not data.empty:
 
     if G:
         with tab1:
-            degree_cent = nx.degree_centrality(G)
-            betweenness = nx.betweenness_centrality(G)
+    # 1. Metrik Hesaplamaları
+    # Ağdaki her düğüm için 5 farklı topolojik özellik hesaplıyoruz
+    degree_cent = nx.degree_centrality(G)
+    betweenness = nx.betweenness_centrality(G)
+    closeness = nx.closeness_centrality(G)
+    clustering = nx.clustering(G)
+    
+    # Eigenvector centrality bazı ağlarda yakınsama hatası verebilir, try-except ile korumaya aldık
+    try:
+        eigen = nx.eigenvector_centrality(G, max_iter=1000)
+    except:
+        eigen = {node: 0 for node in G.nodes()}
+
+    # 2. DataFrame Oluşturma
+    metrics_df = pd.DataFrame({
+        'node': list(G.nodes()),
+        'degree': [degree_cent[n] for n in G.nodes()],
+        'betweenness': [betweenness[n] for n in G.nodes()],
+        'closeness': [closeness[n] for n in G.nodes()],
+        'clustering': [clustering[n] for n in G.nodes()],
+        'eigen': [eigen[n] for n in G.nodes()]
+    })
+
+    # 3. Random Forest ile Tahminleme ve Rol Atama
+    # Veri setimiz yeterliyse (min 5 düğüm) modeli eğitiyoruz
+    if len(metrics_df) > 5:
+        # Hedef: Betweenness ortalamanın üzerinde olan düğümleri "Kritik" (1) olarak etiketliyoruz
+        y = (metrics_df['betweenness'] > metrics_df['betweenness'].mean()).astype(int)
+        X = metrics_df[['degree', 'closeness', 'clustering', 'eigen']]
         
-            metrics_df = pd.DataFrame({
-                'node': list(degree_cent.keys()),
-                'degree': list(degree_cent.values()),
-                'betweenness': list(betweenness.values())
-            })
+        rf = RandomForestClassifier(n_estimators=100, random_state=42)
+        rf.fit(X, y)
+        predictions = rf.predict(X)
         
-            # KNN ve renklendirme
-            if len(metrics_df) > 3:
-                X = metrics_df[['degree', 'betweenness']].values
-                y = (metrics_df['betweenness'] > metrics_df['betweenness'].mean()).astype(int)
-                X_scaled = StandardScaler().fit_transform(X)
-                n_neighbors = max(1, min(3, len(metrics_df)-1))
-                knn = KNeighborsClassifier(n_neighbors=n_neighbors).fit(X_scaled, y)
-                metrics_df['color'] = pd.Series(knn.predict(X_scaled)).map({1: "#e74c3c", 0: "#3498db"})
-            else:
-                metrics_df['color'] = "#3498db"
-        
-            # --- Pyvis ile görsel ağ ---
-            net = Network(height="600px", width="100%")
-            for i, row in metrics_df.iterrows():
-                net.add_node(row['node'], color=row['color'],
-                             title=f"Degree: {row['degree']}, Betweenness: {row['betweenness']}")
-            for u, v, d in G.edges(data=True):
-                net.add_edge(u, v, title=str(d))
-            
-            # HTML üret
-            html_str = net.generate_html()
-            
-            # Streamlit'e göm
-            components.html(html_str, height=600, scrolling=True)
+        # Renk ve Rol atamaları
+        metrics_df['color'] = ["#e74c3c" if p == 1 else "#3498db" for p in predictions]
+        metrics_df['role'] = ["Kritik" if p == 1 else "Normal" for p in predictions]
+    else:
+        metrics_df['color'] = "#3498db"
+        metrics_df['role'] = "Normal"
 
+    # 4. Pyvis ile Görselleştirme
+    net = Network(height="600px", width="100%", bgcolor='#222222', font_color='white')
+    
+    # Düğümleri eklerken Random Forest'tan gelen renkleri kullanıyoruz
+    for _, row in metrics_df.iterrows():
+        net.add_node(row['node'], color=row['color'], 
+                     title=f"Role: {row['role']}<br>Degree: {row['degree']:.2f}")
+    
+    # Kenarları ekle
+    for u, v, d in G.edges(data=True):
+        net.add_edge(u, v)
+    
+    # HTML üret ve Streamlit'e göm
+    html_str = net.generate_html()
+    components.html(html_str, height=600, scrolling=True)
 
-            # HTML dosyası
-            html_str = net.generate_html()
-            st.download_button(
-                label="📥 Ağ Haritasını HTML indir",
-                data=html_str,
-                file_name="network.html",
-                mime="text/html"
-            )
-
-            # PNG için NetworkX + Matplotlib
-            plt.figure(figsize=(8,6))
-            nx.draw(G, with_labels=True, node_color="skyblue", edge_color="gray")
-            plt.savefig("network.png")
-            with open("network.png", "rb") as f:
-                st.download_button("📥 Ağ Haritası (PNG)", f, "network.png", "image/png")
-
+    # İndirme Butonları
+    col1, col2 = st.columns(2)
+    with col1:
+        st.download_button("📥 Ağ Haritasını HTML indir", html_str, "network.html", "text/html")
+    
+    with col2:
+        # PNG önizlemesi
+        fig, ax = plt.subplots(figsize=(8,6))
+        nx.draw(G, with_labels=True, node_color=metrics_df['color'].tolist(), ax=ax)
+        st.pyplot(fig)
 
 
         with tab2:
