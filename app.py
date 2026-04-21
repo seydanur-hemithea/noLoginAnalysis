@@ -68,19 +68,22 @@ if data is not None and not data.empty:
         G = None
 
     if G:
-        with tab1:
-            # 1. Metrik Hesaplamaları
-            # Ağdaki her düğüm için 5 farklı topolojik özellik hesaplıyoruz
+                with tab1:
+            # 1. Gelişmiş Metrik Hesaplamaları
+            # Ağın derinliğini anlamak için yeni metrikler ekliyoruz
             degree_cent = nx.degree_centrality(G)
             betweenness = nx.betweenness_centrality(G)
             closeness = nx.closeness_centrality(G)
             clustering = nx.clustering(G)
+            pagerank = nx.pagerank(G)
+            k_core = nx.core_number(G)
             
-            # Eigenvector centrality bazı ağlarda yakınsama hatası verebilir, try-except ile korumaya aldık
+            # HITS (Hubs ve Authorities) - İki değer döner
             try:
-                eigen = nx.eigenvector_centrality(G, max_iter=1000)
+                hubs, authorities = nx.hits(G, max_iter=1000)
             except:
-                eigen = {node: 0 for node in G.nodes()}
+                hubs = {n: 0 for n in G.nodes()}
+                authorities = {n: 0 for n in G.nodes()}
 
             # 2. DataFrame Oluşturma
             metrics_df = pd.DataFrame({
@@ -89,40 +92,48 @@ if data is not None and not data.empty:
                 'betweenness': [betweenness[n] for n in G.nodes()],
                 'closeness': [closeness[n] for n in G.nodes()],
                 'clustering': [clustering[n] for n in G.nodes()],
-                'eigen': [eigen[n] for n in G.nodes()]
-            })
+                'pagerank': [pagerank[n] for n in G.nodes()],
+                'k_core': [k_core[n] for n in G.nodes()],
+                'hubs': [hubs[n] for n in G.nodes()],
+                'auth': [authorities[n] for n in G.nodes()]
+            }).fillna(0) # Eksik değerleri temizle
 
-            # 3. Random Forest ile Tahminleme ve Rol Atama
-            # Veri setimiz yeterliyse (min 5 düğüm) modeli eğitiyoruz
-            if len(metrics_df) > 5:
-                # Hedef: Betweenness ortalamanın üzerinde olan düğümleri "Kritik" (1) olarak etiketliyoruz
-                y = (metrics_df['betweenness'] > metrics_df['betweenness'].mean()).astype(int)
-                X = metrics_df[['degree', 'closeness', 'clustering', 'eigen']]
-                
-                rf = RandomForestClassifier(n_estimators=100, random_state=42)
-                rf.fit(X, y)
-                predictions = rf.predict(X)
-                
-                # Renk ve Rol atamaları
-                metrics_df['color'] = ["#e74c3c" if p == 1 else "#3498db" for p in predictions]
-                metrics_df['role'] = ["Kritik" if p == 1 else "Normal" for p in predictions]
-            else:
-                metrics_df['color'] = "#3498db"
-                metrics_df['role'] = "Normal"
+            # 3. KNN için Özellik Matrisi ve Ölçeklendirme
+            features = ['degree', 'betweenness', 'closeness', 'clustering', 'pagerank', 'k_core', 'hubs', 'auth']
+            X = metrics_df[features].values
+            
+            # Ölçeklendirme (StandardScaler): KNN için hayati önem taşır
+            scaler = StandardScaler()
+            X_scaled = scaler.fit_transform(X)
 
-            # 4. Pyvis ile Görselleştirme
+            # 4. KNN Sınıflandırma
+            # Hedef: Betweenness (stratejik önem) + PageRank (etki gücü) kombinasyonu
+            y_target = (metrics_df['betweenness'] > metrics_df['betweenness'].mean()) | \
+                       (metrics_df['pagerank'] > metrics_df['pagerank'].mean())
+            y = y_target.astype(int)
+
+            # Dinamik K seçimi (Ağ boyutunun karekökü)
+            k_val = max(3, int(len(metrics_df)**0.5))
+            if k_val % 2 == 0: k_val += 1
+            
+            knn = KNeighborsClassifier(n_neighbors=k_val)
+            knn.fit(X_scaled, y)
+            predictions = knn.predict(X_scaled)
+
+            # Sonuçları DataFrame'e ekle
+            metrics_df['color'] = ["#e74c3c" if p == 1 else "#3498db" for p in predictions]
+            metrics_df['role'] = ["Kritik" if p == 1 else "Normal" for p in predictions]
+
+            # 5. Pyvis ile Görselleştirme
             net = Network(height="600px", width="100%", bgcolor='#222222', font_color='white')
             
-            # Düğümleri eklerken Random Forest'tan gelen renkleri kullanıyoruz
             for _, row in metrics_df.iterrows():
                 net.add_node(row['node'], color=row['color'], 
-                             title=f"Role: {row['role']}<br>Degree: {row['degree']:.2f}")
+                             title=f"Rol: {row['role']}<br>PageRank: {row['pagerank']:.3f}<br>Degree: {row['degree']:.2f}")
             
-            # Kenarları ekle
             for u, v, d in G.edges(data=True):
                 net.add_edge(u, v)
             
-            # HTML üret ve Streamlit'e göm
             html_str = net.generate_html()
             components.html(html_str, height=600, scrolling=True)
 
@@ -130,12 +141,11 @@ if data is not None and not data.empty:
             col1, col2 = st.columns(2)
             with col1:
                 st.download_button("📥 Ağ Haritasını HTML indir", html_str, "network.html", "text/html")
-            
             with col2:
-                # PNG önizlemesi
                 fig, ax = plt.subplots(figsize=(8,6))
                 nx.draw(G, with_labels=True, node_color=metrics_df['color'].tolist(), ax=ax)
                 st.pyplot(fig)
+
 
         with tab2:
             st.dataframe(metrics_df)
