@@ -13,8 +13,6 @@ from sklearn.ensemble import RandomForestClassifier
 # Sayfa ayarları
 st.set_page_config(page_title="Hemithea Portfolio Analiz", layout="wide")
 
-
-
 # CSS
 st.markdown("""
     <style>
@@ -68,9 +66,8 @@ if data is not None and not data.empty:
         G = None
 
     if G:
-                with tab1:
+        with tab1:
             # 1. Gelişmiş Metrik Hesaplamaları
-            # Ağın derinliğini anlamak için yeni metrikler ekliyoruz
             degree_cent = nx.degree_centrality(G)
             betweenness = nx.betweenness_centrality(G)
             closeness = nx.closeness_centrality(G)
@@ -78,7 +75,7 @@ if data is not None and not data.empty:
             pagerank = nx.pagerank(G)
             k_core = nx.core_number(G)
             
-            # HITS (Hubs ve Authorities) - İki değer döner
+            # HITS (Hubs ve Authorities)
             try:
                 hubs, authorities = nx.hits(G, max_iter=1000)
             except:
@@ -96,23 +93,20 @@ if data is not None and not data.empty:
                 'k_core': [k_core[n] for n in G.nodes()],
                 'hubs': [hubs[n] for n in G.nodes()],
                 'auth': [authorities[n] for n in G.nodes()]
-            }).fillna(0) # Eksik değerleri temizle
+            }).fillna(0)
 
             # 3. KNN için Özellik Matrisi ve Ölçeklendirme
             features = ['degree', 'betweenness', 'closeness', 'clustering', 'pagerank', 'k_core', 'hubs', 'auth']
             X = metrics_df[features].values
             
-            # Ölçeklendirme (StandardScaler): KNN için hayati önem taşır
             scaler = StandardScaler()
             X_scaled = scaler.fit_transform(X)
 
             # 4. KNN Sınıflandırma
-            # Hedef: Betweenness (stratejik önem) + PageRank (etki gücü) kombinasyonu
             y_target = (metrics_df['betweenness'] > metrics_df['betweenness'].mean()) | \
                        (metrics_df['pagerank'] > metrics_df['pagerank'].mean())
             y = y_target.astype(int)
 
-            # Dinamik K seçimi (Ağ boyutunun karekökü)
             k_val = max(3, int(len(metrics_df)**0.5))
             if k_val % 2 == 0: k_val += 1
             
@@ -146,7 +140,6 @@ if data is not None and not data.empty:
                 nx.draw(G, with_labels=True, node_color=metrics_df['color'].tolist(), ax=ax)
                 st.pyplot(fig)
 
-
         with tab2:
             st.dataframe(metrics_df)
             # CSV indir
@@ -158,7 +151,7 @@ if data is not None and not data.empty:
                 mime="text/csv"
             )
             
-            # PNG indir (matplotlib bar chart örneği)
+            # PNG indir
             plt.figure(figsize=(8,6))
             plt.bar(metrics_df['node'], metrics_df['degree'], color=metrics_df['color'])
             plt.xticks(rotation=90)
