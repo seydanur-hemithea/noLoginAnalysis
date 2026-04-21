@@ -10,7 +10,6 @@ import streamlit.components.v1 as components
 import matplotlib.pyplot as plt
 from sklearn.ensemble import RandomForestClassifier
 
-
 # Sayfa ayarları
 st.set_page_config(page_title="Hemithea Portfolio Analiz", layout="wide")
 
@@ -28,9 +27,6 @@ hide_streamlit_style = """
             """
 
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
-
-
-
 
 # CSS
 st.markdown("""
@@ -86,74 +82,73 @@ if data is not None and not data.empty:
 
     if G:
         with tab1:
-    # 1. Metrik Hesaplamaları
-    # Ağdaki her düğüm için 5 farklı topolojik özellik hesaplıyoruz
-    degree_cent = nx.degree_centrality(G)
-    betweenness = nx.betweenness_centrality(G)
-    closeness = nx.closeness_centrality(G)
-    clustering = nx.clustering(G)
-    
-    # Eigenvector centrality bazı ağlarda yakınsama hatası verebilir, try-except ile korumaya aldık
-    try:
-        eigen = nx.eigenvector_centrality(G, max_iter=1000)
-    except:
-        eigen = {node: 0 for node in G.nodes()}
+            # 1. Metrik Hesaplamaları
+            # Ağdaki her düğüm için 5 farklı topolojik özellik hesaplıyoruz
+            degree_cent = nx.degree_centrality(G)
+            betweenness = nx.betweenness_centrality(G)
+            closeness = nx.closeness_centrality(G)
+            clustering = nx.clustering(G)
+            
+            # Eigenvector centrality bazı ağlarda yakınsama hatası verebilir, try-except ile korumaya aldık
+            try:
+                eigen = nx.eigenvector_centrality(G, max_iter=1000)
+            except:
+                eigen = {node: 0 for node in G.nodes()}
 
-    # 2. DataFrame Oluşturma
-    metrics_df = pd.DataFrame({
-        'node': list(G.nodes()),
-        'degree': [degree_cent[n] for n in G.nodes()],
-        'betweenness': [betweenness[n] for n in G.nodes()],
-        'closeness': [closeness[n] for n in G.nodes()],
-        'clustering': [clustering[n] for n in G.nodes()],
-        'eigen': [eigen[n] for n in G.nodes()]
-    })
+            # 2. DataFrame Oluşturma
+            metrics_df = pd.DataFrame({
+                'node': list(G.nodes()),
+                'degree': [degree_cent[n] for n in G.nodes()],
+                'betweenness': [betweenness[n] for n in G.nodes()],
+                'closeness': [closeness[n] for n in G.nodes()],
+                'clustering': [clustering[n] for n in G.nodes()],
+                'eigen': [eigen[n] for n in G.nodes()]
+            })
 
-    # 3. Random Forest ile Tahminleme ve Rol Atama
-    # Veri setimiz yeterliyse (min 5 düğüm) modeli eğitiyoruz
-    if len(metrics_df) > 5:
-        # Hedef: Betweenness ortalamanın üzerinde olan düğümleri "Kritik" (1) olarak etiketliyoruz
-        y = (metrics_df['betweenness'] > metrics_df['betweenness'].mean()).astype(int)
-        X = metrics_df[['degree', 'closeness', 'clustering', 'eigen']]
-        
-        rf = RandomForestClassifier(n_estimators=100, random_state=42)
-        rf.fit(X, y)
-        predictions = rf.predict(X)
-        
-        # Renk ve Rol atamaları
-        metrics_df['color'] = ["#e74c3c" if p == 1 else "#3498db" for p in predictions]
-        metrics_df['role'] = ["Kritik" if p == 1 else "Normal" for p in predictions]
-    else:
-        metrics_df['color'] = "#3498db"
-        metrics_df['role'] = "Normal"
+            # 3. Random Forest ile Tahminleme ve Rol Atama
+            # Veri setimiz yeterliyse (min 5 düğüm) modeli eğitiyoruz
+            if len(metrics_df) > 5:
+                # Hedef: Betweenness ortalamanın üzerinde olan düğümleri "Kritik" (1) olarak etiketliyoruz
+                y = (metrics_df['betweenness'] > metrics_df['betweenness'].mean()).astype(int)
+                X = metrics_df[['degree', 'closeness', 'clustering', 'eigen']]
+                
+                rf = RandomForestClassifier(n_estimators=100, random_state=42)
+                rf.fit(X, y)
+                predictions = rf.predict(X)
+                
+                # Renk ve Rol atamaları
+                metrics_df['color'] = ["#e74c3c" if p == 1 else "#3498db" for p in predictions]
+                metrics_df['role'] = ["Kritik" if p == 1 else "Normal" for p in predictions]
+            else:
+                metrics_df['color'] = "#3498db"
+                metrics_df['role'] = "Normal"
 
-    # 4. Pyvis ile Görselleştirme
-    net = Network(height="600px", width="100%", bgcolor='#222222', font_color='white')
-    
-    # Düğümleri eklerken Random Forest'tan gelen renkleri kullanıyoruz
-    for _, row in metrics_df.iterrows():
-        net.add_node(row['node'], color=row['color'], 
-                     title=f"Role: {row['role']}<br>Degree: {row['degree']:.2f}")
-    
-    # Kenarları ekle
-    for u, v, d in G.edges(data=True):
-        net.add_edge(u, v)
-    
-    # HTML üret ve Streamlit'e göm
-    html_str = net.generate_html()
-    components.html(html_str, height=600, scrolling=True)
+            # 4. Pyvis ile Görselleştirme
+            net = Network(height="600px", width="100%", bgcolor='#222222', font_color='white')
+            
+            # Düğümleri eklerken Random Forest'tan gelen renkleri kullanıyoruz
+            for _, row in metrics_df.iterrows():
+                net.add_node(row['node'], color=row['color'], 
+                             title=f"Role: {row['role']}<br>Degree: {row['degree']:.2f}")
+            
+            # Kenarları ekle
+            for u, v, d in G.edges(data=True):
+                net.add_edge(u, v)
+            
+            # HTML üret ve Streamlit'e göm
+            html_str = net.generate_html()
+            components.html(html_str, height=600, scrolling=True)
 
-    # İndirme Butonları
-    col1, col2 = st.columns(2)
-    with col1:
-        st.download_button("📥 Ağ Haritasını HTML indir", html_str, "network.html", "text/html")
-    
-    with col2:
-        # PNG önizlemesi
-        fig, ax = plt.subplots(figsize=(8,6))
-        nx.draw(G, with_labels=True, node_color=metrics_df['color'].tolist(), ax=ax)
-        st.pyplot(fig)
-
+            # İndirme Butonları
+            col1, col2 = st.columns(2)
+            with col1:
+                st.download_button("📥 Ağ Haritasını HTML indir", html_str, "network.html", "text/html")
+            
+            with col2:
+                # PNG önizlemesi
+                fig, ax = plt.subplots(figsize=(8,6))
+                nx.draw(G, with_labels=True, node_color=metrics_df['color'].tolist(), ax=ax)
+                st.pyplot(fig)
 
         with tab2:
             st.dataframe(metrics_df)
@@ -179,7 +174,6 @@ if data is not None and not data.empty:
                     file_name="metrics.png",
                     mime="image/png"
                 )
-
 
         with tab3:
             st.dataframe(data)
